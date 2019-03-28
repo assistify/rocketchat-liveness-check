@@ -3,11 +3,12 @@ const commonSetup = require('./utils/commonSetup');
 
 (async () => {
   commonSetup.run();
-  const browser = await puppeteer.launch()
-  const page = await browser.newPage()
   const server = process.env.SERVER || 'http://localhost:3000'
-  const user = process.env.USER || 'liveness'
+  const user = process.env.ASSISTIFY_USER || 'liveness'
   const password = process.env.PASSWORD || '1iveness!'
+
+  const browser = process.env.CHROME ? await puppeteer.launch({executablePath: process.env.CHROME}) : await puppeteer.launch() 
+  const page = await browser.newPage()
 
   // make sure we're at a width with which we can see the sidepanel if logged in
   await page.setViewport({ width: 1440, height: 748 })
