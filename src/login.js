@@ -1,5 +1,8 @@
 const puppeteer = require('puppeteer');
+const commonSetup = require('./utils/commonSetup');
+
 (async () => {
+  commonSetup.run();
   const browser = await puppeteer.launch()
   const page = await browser.newPage()
   const server = process.env.SERVER || 'http://localhost:3000'
@@ -13,7 +16,7 @@ const puppeteer = require('puppeteer');
 
   await page.waitForSelector('input#emailOrUsername')
   await page.type('input#emailOrUsername', user)
-  await page.type('input#pass', user)
+  await page.type('input#pass', password)
 
   await page.click('button.login')
 
@@ -30,7 +33,7 @@ const puppeteer = require('puppeteer');
     // Check we're back to login screen
     await page.waitForSelector('input#emailOrUsername')
   } catch (e) {
-    await page.screenshot({ path: './.screenshots/login-failed.png' });
+    await page.screenshot({ path: `${ commonSetup.SCREENSHOTS_DIR_PATH }/login-failed.png` });
     await browser.close()
     console.error('Could not log in and log out again')
 
