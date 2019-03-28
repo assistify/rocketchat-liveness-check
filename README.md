@@ -30,6 +30,16 @@ By the time of writing, the following versions were current
 
 - `rpm -ivh --nodeps http://dl.fedoraproject.org/pub/archive/fedora/linux/releases/16/Fedora/x86_64/os/Packages/gdk-pixbuf2-2.24.0-1.fc16.x86_64.rpm`
 
+## Installing this package
+
+Until it's not published to npm, for the sake of completeness:
+
+```bash
+git clone https://github.com/assistify/rocketchat-liveness-check.git
+cd rocketchat-liveness-check
+npm i
+```
+
 ## How to run it
 
 `USER=liveness PASSWORD=1iveness! SERVER=http://localhost:3000 npm start`
