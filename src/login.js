@@ -5,7 +5,7 @@ const commonSetup = require('./utils/commonSetup');
   commonSetup.run();
   const server = process.env.SERVER || 'http://localhost:3000'
   const user = process.env.ASSISTIFY_USER || 'liveness'
-  const password = process.env.PASSWORD || '1iveness!'
+  const password = process.env.ASSISTIFY_PASSWORD || '1iveness!'
 
   const browser = process.env.CHROME ? await puppeteer.launch({executablePath: process.env.CHROME}) : await puppeteer.launch() 
   const page = await browser.newPage()
