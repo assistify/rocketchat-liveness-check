@@ -13,9 +13,12 @@ Make sure this user has got no permissions (or very few, such as "guest").
 
 ### Headless on Amazon Linux
 
-From [this awesome article](https://medium.com/mockingbot/run-puppeteer-chrome-headless-on-ec2-amazon-linux-ami-6c9c6a17bee6)
+From [this awesome post](https://medium.com/mockingbot/run-puppeteer-chrome-headless-on-ec2-amazon-linux-ami-6c9c6a17bee6) and [this nerdy how-to get Chrome installed](https://intoli.com/blog/installing-google-chrome-on-centos/)
 
-`yum install -y cups-libs dbus-glib libXrandr libXcursor libXinerama cairo cairo-gobject pango`
+=> `curl https://intoli.com/install-google-chrome.sh | bash`
+We actually need this only for the dependencies, this is most convenient
+
+`yum install -y cups-libs dbus-glib libXrandr libXcursor libXScrnSaver libXinerama cairo cairo-gobject pango libXcomposite libXdamage libXext libXi libXtst cups-libs GConf2 alsa-lib atk gtk3 ipa-gothic-fonts xorg-x11-fonts-100dpi xorg-x11-fonts-75dpi xorg-x11-utils xorg-x11-fonts-cyrillic xorg-x11-fonts-Type1 xorg-x11-fonts-misc`
 
 By the time of writing, the following versions were current
 - `rpm -ivh --nodeps http://mirror.centos.org/centos/7/os/x86_64/Packages/atk-2.28.1-1.el7.x86_64.rpm`
