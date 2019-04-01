@@ -7,7 +7,7 @@ const commonSetup = require('./utils/commonSetup');
   const user = process.env.ASSISTIFY_USER || 'liveness'
   const password = process.env.ASSISTIFY_PASSWORD || '1iveness!'
 
-  const browser = process.env.CHROME ? await puppeteer.launch({executablePath: process.env.CHROME}) : await puppeteer.launch() 
+  const browser = process.env.CHROME ? await puppeteer.launch({executablePath: process.env.CHROME, args: ['--no-sandbox', '--disable-setuid-sandbox']}) : await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']}) 
   const page = await browser.newPage()
 
   // make sure we're at a width with which we can see the sidepanel if logged in
