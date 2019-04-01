@@ -7,7 +7,7 @@ const commonSetup = require('./utils/commonSetup');
   const user = process.env.ASSISTIFY_USER || 'liveness'
   const password = process.env.ASSISTIFY_PASSWORD || '1iveness!'
 
-  const browser = process.env.CHROME ? await puppeteer.launch({executablePath: process.env.CHROME}) : await puppeteer.launch() 
+  const browser = process.env.CHROME ? await puppeteer.launch({executablePath: process.env.CHROME, args: ['--no-sandbox', '--disable-setuid-sandbox']}) : await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']}) 
   const page = await browser.newPage()
 
   // make sure we're at a width with which we can see the sidepanel if logged in
@@ -20,7 +20,14 @@ const commonSetup = require('./utils/commonSetup');
   await page.type('input#pass', password)
 
   await page.click('button.login')
-
+  try {
+    await page.waitForSelector('#toast-container', {timeout: 3000})
+    console.error('User not Found')
+    process.exit(0);
+  }
+  catch {
+    
+  }
   try {
     await page.waitForSelector('.avatar', { timeout: 10000 })
 
@@ -38,6 +45,7 @@ const commonSetup = require('./utils/commonSetup');
   } catch (e) {
     await page.screenshot({ path: `${ commonSetup.SCREENSHOTS_DIR_PATH }/login-failed.png` });
     await browser.close()
+    console.error(e)
     console.error('Could not log in and log out again')
 
     process.exit(1); // enforce an exist code so that you can check this in a bash based health check
