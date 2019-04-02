@@ -1,19 +1,22 @@
 const puppeteer = require('puppeteer');
 const commonSetup = require('./utils/commonSetup');
+const AutomationError = require('./utils/AutomationError')
 
-(async () => {
+const login = async function (server='http://localhost:3000', user='liveness', password='1iveness!', chromePath=process.env.CHROME){
   commonSetup.run();
-  const server = process.env.SERVER || 'http://localhost:3000'
-  const user = process.env.ASSISTIFY_USER || 'liveness'
-  const password = process.env.ASSISTIFY_PASSWORD || '1iveness!'
 
-  const browser = process.env.CHROME ? await puppeteer.launch({executablePath: process.env.CHROME, args: ['--no-sandbox', '--disable-setuid-sandbox']}) : await puppeteer.launch({args: ['--no-sandbox', '--disable-setuid-sandbox']}) 
+  const args = ['--no-sandbox', '--disable-setuid-sandbox']
+  const browser = chromePath ? await puppeteer.launch({executablePath: chromePath, args}) : await puppeteer.launch({args}) 
   const page = await browser.newPage()
 
   // make sure we're at a width with which we can see the sidepanel if logged in
   await page.setViewport({ width: 1440, height: 748 })
 
-  await page.goto(`${server}`)
+  try{
+  await page.goto(server, {timeout: 10000})
+  } catch(e) {
+    throw new AutomationError('server-not-reached', {server, previous: e}) 
+  }
 
   await page.waitForSelector('input#emailOrUsername')
   await page.type('input#emailOrUsername', user)
@@ -21,12 +24,11 @@ const commonSetup = require('./utils/commonSetup');
 
   await page.click('button.login')
   try {
-    await page.waitForSelector('#toast-container', {timeout: 3000})
-    console.error('User not Found')
-    process.exit(0);
+    await page.waitForSelector('#toast-container', {timeout: 1000})
+    throw new AutomationError('user-not-found', {user, previous: e})
   }
-  catch {
-    
+  catch(e) {
+    // we didn't get an error, everything as expected
   }
   try {
     await page.waitForSelector('.avatar', { timeout: 10000 })
@@ -45,11 +47,10 @@ const commonSetup = require('./utils/commonSetup');
   } catch (e) {
     await page.screenshot({ path: `${ commonSetup.SCREENSHOTS_DIR_PATH }/login-failed.png` });
     await browser.close()
-    console.error(e)
-    console.error('Could not log in and log out again')
-
-    process.exit(1); // enforce an exist code so that you can check this in a bash based health check
+    throw new AutomationError('login-logout-failed', {previous: e})
   }
-
   await browser.close()
-})()
+  return true;
+};
+
+module.exports = login
