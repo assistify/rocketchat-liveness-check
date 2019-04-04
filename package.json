@@ -3,9 +3,9 @@
   "version": "0.0.1",
   "description": "Verify liveness of a rocketchat instance - from the command line",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node src/login"
+    "liveness": "node src/liveness"
   },
+  "main": "src/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/assistify/rocketchat-liveness-check.git"
