@@ -5,6 +5,7 @@
   "scripts": {
     "liveness": "node src/liveness"
   },
+  "main": "src/index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/assistify/rocketchat-liveness-check.git"
