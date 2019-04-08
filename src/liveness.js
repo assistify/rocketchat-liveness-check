@@ -22,7 +22,7 @@ async function validateLogin(server, user, password) {
     }
 }
 
-function runServer() {
+function runServer(server, user, password) {
   const express = require('express')
   const app = express()
   const status = {result: undefined}
@@ -48,7 +48,7 @@ const user = process.env.ASSISTIFY_USER || 'liveness'
 const password = process.env.ASSISTIFY_PASSWORD || '1iveness!'
 
 if (process.argv.some(arg => arg === '--server')) {
-  runServer()
+  runServer(server, user, password)
 } else {
   validateLogin(server, user, password)
 }
