@@ -43,7 +43,6 @@ const login = async function (server='http://localhost:3000', user='liveness', p
       // Check we're back to login screen
       await page.waitForSelector('input#emailOrUsername')
 
-      console.info('Completed login and logout successfully')
     } catch (e) {
       await page.screenshot({ path: `${ commonSetup.SCREENSHOTS_DIR_PATH }/login-failed.png` });
       await browser.close()
