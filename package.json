@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/assistify/rocketchat-liveness-check#readme",
   "dependencies": {
+    "express": "^4.16.4",
     "puppeteer": "^1.13.0"
   }
 }

@@ -33,7 +33,17 @@ npm i
 
 ## How to run it
 
-`ASSISTIFY_USER=liveness ASSISTIFY_PASSWORD=1iveness! SERVER=http://localhost:3000 
+`ASSISTIFY_USER=liveness ASSISTIFY_PASSWORD=1iveness! SERVER=http://localhost:3000
 CHROME=/usr/bin/google-chrome-stable npm start`
 
 You can omit the environment variables if you use the default values
+
+### Running the service version
+
+In some circumstances it is helpful to run this test as a service. By calling `node src/liveness.js --server`, the
+program executes liveness checks periodically and exposes the info about the last check on http://localhost:3003
+
+The port number and the interval can be defined by environment variables:
+
+- PORT (default 3003)
+- UPDATE_INTERVAL (in ms, default 60000)

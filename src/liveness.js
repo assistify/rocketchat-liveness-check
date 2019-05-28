@@ -3,6 +3,7 @@ const login = require('./login');
 async function validateLogin(server, user, password) {
     try {
         await login(server, user, password)
+        console.info('Completed login and logout successfully')
         process.exit(0)
     } catch (e) {
         switch (e.message) {
@@ -21,8 +22,33 @@ async function validateLogin(server, user, password) {
     }
 }
 
+function runServer(server, user, password) {
+  const express = require('express')
+  const app = express()
+  const status = {result: undefined}
+
+  async function updateStatus() {
+    try {
+      status.result = await login(server, user, password)
+      delete status.error
+    } catch (e) {
+      status.result = false
+      status.error = e
+    }
+    setTimeout(updateStatus, process.env.UPDATE_INTERVAL || 60000)
+  }
+
+  updateStatus()
+  app.get('/', (req, res) => res.json(status))
+  app.listen(process.env.PORT || 3003)
+}
+
 const server = process.env.SERVER || 'http://localhost:3000'
 const user = process.env.ASSISTIFY_USER || 'liveness'
 const password = process.env.ASSISTIFY_PASSWORD || '1iveness!'
 
-validateLogin(server, user, password)
+if (process.argv.some(arg => arg === '--server')) {
+  runServer(server, user, password)
+} else {
+  validateLogin(server, user, password)
+}
