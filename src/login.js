@@ -25,13 +25,13 @@ const login = async function (server='http://localhost:3000', user='liveness', p
   await page.click('button.login')
   let userExists = true
   try {
-    await page.waitForSelector('#toast-container', {timeout: 1000})
+    await page.waitForSelector('#toast-container', {timeout: 3000})
     userExists = false
   }
   catch (e) {
     // we didn't get an error, everything as expected
     try {
-      await page.waitForSelector('.avatar', { timeout: 10000 })
+      await page.waitForSelector('.avatar', { timeout: 30000 })
 
       // bring up user menue
       await page.click('.avatar')
