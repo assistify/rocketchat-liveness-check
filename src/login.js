@@ -23,16 +23,21 @@ const login = async function (server='http://localhost:3000', user='liveness', p
   await page.type('input#pass', password)
 
   await page.click('button.login')
-  let userExists = true
   try {
     await page.waitForSelector('#toast-container', {timeout: 3000})
-    userExists = false
+    throw new AutomationError('user-not-found', {user, previous: e})
   }
   catch (e) {
+    try{
+      await page.waitForSelector('.avatar', { timeout: 30000 })
+    }
+    catch (e) {
+      await page.screenshot({ path: `${ commonSetup.SCREENSHOTS_DIR_PATH }/login-failed.png` });
+      await browser.close()
+      throw new AutomationError('login-failed', {previous: e})
+    }
     // we didn't get an error, everything as expected
     try {
-      await page.waitForSelector('.avatar', { timeout: 30000 })
-
       // bring up user menue
       await page.click('.avatar')
 
@@ -46,14 +51,9 @@ const login = async function (server='http://localhost:3000', user='liveness', p
       console.info('Completed login and logout successfully')
     } catch (e) {
       await page.screenshot({ path: `${ commonSetup.SCREENSHOTS_DIR_PATH }/login-failed.png` });
-      await browser.close()
-      throw new AutomationError('login-logout-failed', {previous: e})
     }
   }
   await browser.close()
-  if (!userExists) {
-    throw new AutomationError('user-not-found', {user, previous: e})
-  }
 
   return true;
 };
