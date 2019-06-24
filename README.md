@@ -34,6 +34,6 @@ npm i
 ## How to run it
 
 `ASSISTIFY_USER=liveness ASSISTIFY_PASSWORD=1iveness! SERVER=http://localhost:3000 
-CHROME=/usr/bin/google-chrome-stable npm start`
+CHROME=/usr/bin/google-chrome-stable npm run liveness`
 
 You can omit the environment variables if you use the default values
