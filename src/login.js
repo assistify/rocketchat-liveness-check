@@ -6,14 +6,18 @@ const login = async function (server='http://localhost:3000', user='liveness', p
   commonSetup.run();
 
   const args = ['--no-sandbox', '--disable-setuid-sandbox']
-  const browser = chromePath ? await puppeteer.launch({executablePath: chromePath, args}) : await puppeteer.launch({args})
+  const options = {ignoreHTTPSErrors: true, args}
+  if (chromePath) {
+    options.executablePath = chromePath
+  }
+  const browser = await puppeteer.launch(options)
   const page = await browser.newPage()
 
   // make sure we're at a width with which we can see the sidepanel if logged in
   await page.setViewport({ width: 1440, height: 748 })
 
   try{
-  await page.goto(server, {timeout: 10000})
+    await page.goto(server, {timeout: 10000})
   } catch(e) {
     throw new AutomationError('server-not-reached', {server, previous: e})
   }
