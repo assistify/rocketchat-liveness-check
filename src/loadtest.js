@@ -13,7 +13,7 @@ const login = async function (server='http://localhost:3000', user='liveness', p
   await page.setViewport({ width: 1440, height: 748 })
 
   try{
-  await page.goto(server, {timeout: 10000})
+    await page.goto(server, {timeout: 10000})
   } catch(e) {
     throw new AutomationError('server-not-reached', {server, previous: e})
   }

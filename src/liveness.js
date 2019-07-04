@@ -1,4 +1,5 @@
 const login = require('./login');
+const loadtest = require('./loadtest');
 
 async function validateLogin(server, user, password) {
     try {
@@ -25,4 +26,8 @@ const server = process.env.SERVER || 'http://localhost:3000'
 const user = process.env.ASSISTIFY_USER || 'liveness'
 const password = process.env.ASSISTIFY_PASSWORD || '1iveness!'
 
-validateLogin(server, user, password)
+if (process.argv.includes('--loadtest')) {
+    loadtest(server, user, password);
+} else {
+    validateLogin(server, user, password);
+}
