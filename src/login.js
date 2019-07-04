@@ -44,27 +44,31 @@ const login = async function (server='http://localhost:3000', user='liveness', p
     try {
       await page.goto(`${server}/direct/${user}`)
       await page.waitForSelector('.js-input-message')
+      const start = new Date()
+      await page.type('.js-input-message', +start + '\n')
+      await page.waitForFunction(() => document.querySelectorAll('.message.temp').length === 0)
+      await page.keyboard.press('ArrowUp')
+      await page.evaluate(() => document.querySelector('.js-input-message').value = '')
+      await page.type('.js-input-message', (new Date() - start) + '\n')
 
-      while (true) {
-        await sendMessage()
-      }
+      // bring up user menue
+      await page.click('.avatar')
+
+      // and log out
+      await page.waitForSelector('.rc-popover--sidebar-header .rc-popover__column ul:last-of-type li:last-of-type')
+      await page.click('.rc-popover--sidebar-header .rc-popover__column ul:last-of-type li:last-of-type')
+
+      // Check we're back to login screen
+      await page.waitForSelector('input#emailOrUsername')
+
+      console.info('Completed login and logout successfully')
     } catch (e) {
       await page.screenshot({path: `${commonSetup.SCREENSHOTS_DIR_PATH}/login-failed.png`});
     }
   }
+  await browser.close()
 
   return true;
-
-  async function sendMessage() {
-    const start = new Date()
-    await page.type('.js-input-message', + start + ' (start)\n')
-    await page.waitForFunction(() => document.querySelectorAll('.message.temp').length === 0)
-    await page.keyboard.press('ArrowUp')
-    await page.evaluate(() => document.querySelector('.js-input-message').value = '')
-    await page.type('.js-input-message', (new Date() - start) + 'ms\n')
-    console.log((new Date() - start) + 'ms')
-    await page.waitFor(1000)
-  }
 };
 
 module.exports = login
