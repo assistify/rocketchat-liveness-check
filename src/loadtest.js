@@ -25,7 +25,9 @@ const login = async function (server='http://localhost:3000', user='liveness', p
   await page.click('button.login')
   try {
     await page.waitForSelector('#toast-container', {timeout: 3000})
-    throw new AutomationError('user-not-found', {user, previous: e})
+    await register(user)
+    console.log('REGISTER SUCCESSFUL')
+    throw new AutomationError('continue after register')
   }
   catch (e) {
     try{
@@ -40,7 +42,7 @@ const login = async function (server='http://localhost:3000', user='liveness', p
     try {
       await page.goto(`${server}/direct/${user}`)
       await page.waitForSelector('.js-input-message')
-
+      console.log('START WRITING MESSAGES')
       while (true) {
         await sendMessage()
       }
@@ -60,6 +62,22 @@ const login = async function (server='http://localhost:3000', user='liveness', p
     await page.type('.js-input-message', (new Date() - start) + 'ms\n')
     console.log((new Date() - start) + 'ms')
     await page.waitFor(1000)
+  }
+
+  async function register(username) {
+    await page.click('button.register')
+    await page.waitForSelector('#name')
+
+    await page.type('#name', username)
+    await page.type('#email', username+'@loadtest.com')
+    await page.type('#pass', username)
+    await page.type('#confirm-pass', username)
+
+    await page.click('button.login')
+
+    await page.waitForSelector('#username')
+    await page.type('#username', '')
+    await page.click('button.login')
   }
 };
 

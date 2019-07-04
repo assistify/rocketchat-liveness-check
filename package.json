@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "description": "Verify liveness of a rocketchat instance - from the command line",
   "scripts": {
-    "liveness": "node src/liveness"
+    "liveness": "node src/liveness",
+    "loadtest": "node src/liveness --loadtest"
   },
   "main": "src/index.js",
   "repository": {
