@@ -6,7 +6,7 @@ const login = async function (server='http://localhost:3000', user='liveness', p
   commonSetup.run();
 
   const args = ['--no-sandbox', '--disable-setuid-sandbox']
-  const options = {ignoreHTTPSErrors: true, args}
+  const options = {ignoreHTTPSErrors: true, headless: false, args}
   if (chromePath) {
     options.executablePath = chromePath
   }
@@ -76,7 +76,6 @@ const login = async function (server='http://localhost:3000', user='liveness', p
     await page.type('#email', username+'@loadtest.com')
     await page.type('#pass', username)
     await page.type('#confirm-pass', username)
-
     await page.click('button.login')
 
     await page.waitForSelector('#username')

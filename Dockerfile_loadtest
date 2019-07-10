@@ -1,0 +1,18 @@
+FROM amazonlinux
+
+RUN curl https://intoli.com/install-google-chrome.sh | bash
+RUN curl --silent --location https://rpm.nodesource.com/setup_10.x | bash -
+RUN yum -y install nodejs
+
+RUN useradd test
+
+WORKDIR /livenessprobe
+
+ADD . /livenessprobe
+
+RUN cd /livenessprobe & npm install
+RUN chown -R test /livenessprobe
+
+USER test
+
+CMD ["npm", "run", "loadtest"]

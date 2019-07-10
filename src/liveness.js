@@ -27,7 +27,7 @@ const user = process.env.ASSISTIFY_USER || 'liveness'
 const password = process.env.ASSISTIFY_PASSWORD || '1iveness!'
 
 if (process.argv.includes('--loadtest')) {
-    console.log('RUNNING LOADTEST')
+    console.log('RUNNING LOADTEST ON ' + server)
     const username = Math.floor(Math.random() * Math.floor(999999-100000) + 100000)+'';
     console.log('WITH USER: ' + username)
     loadtest(server, username, username);
