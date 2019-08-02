@@ -2,7 +2,8 @@ const puppeteer = require('puppeteer');
 const commonSetup = require('./utils/commonSetup');
 const AutomationError = require('./utils/AutomationError')
 
-const login = async function (server='http://localhost:3000', user='liveness', password='1iveness!', chromePath=process.env.CHROME){
+const login = async function (server='http://localhost:3000', user='liveness', password='1iveness!', chromePath=process.env.CHROME, logger){
+  logger = logger || console
   commonSetup.run();
 
   const args = ['--no-sandbox', '--disable-setuid-sandbox']
@@ -19,6 +20,7 @@ const login = async function (server='http://localhost:3000', user='liveness', p
   try{
     await page.goto(server, {timeout: 10000})
   } catch(e) {
+    logger.error(`Liveness check on ${server}: Server not reached`)
     throw new AutomationError('server-not-reached', {server, previous: e})
   }
 
@@ -29,13 +31,14 @@ const login = async function (server='http://localhost:3000', user='liveness', p
   await page.click('button.login')
   try {
     await page.waitForSelector('#toast-container', {timeout: 3000})
+    logger.error(`Liveness check on ${server}: Toast container appeared after login try`)
     throw new AutomationError('user-not-found', {user, previous: e})
-  }
-  catch (e) {
+  } catch (e) {
     try{
       await page.waitForSelector('.avatar', { timeout: 30000 })
     }
     catch (e) {
+      logger.error(`Liveness check on ${server}: Login failed`)
       await page.screenshot({ path: `${ commonSetup.SCREENSHOTS_DIR_PATH }/login-failed.png` });
       await browser.close()
       throw new AutomationError('login-failed', {previous: e})
@@ -49,7 +52,12 @@ const login = async function (server='http://localhost:3000', user='liveness', p
       await page.waitForFunction(() => document.querySelectorAll('.message.temp').length === 0)
       await page.keyboard.press('ArrowUp')
       await page.evaluate(() => document.querySelector('.js-input-message').value = '')
-      await page.type('.js-input-message', (new Date() - start) + '\n')
+      logger.info({server, time: new Date() - start})
+      await page.type('.js-input-message', (new Date() - start) + 'ms\n')
+      await page.waitFor(1000)
+      await page.type('.js-input-message', 'waiting...')
+      await page.waitFor(3000)
+      await page.evaluate(() => document.querySelector('.js-input-message').value = '')
 
       // bring up user menue
       await page.click('.avatar')
@@ -61,8 +69,9 @@ const login = async function (server='http://localhost:3000', user='liveness', p
       // Check we're back to login screen
       await page.waitForSelector('input#emailOrUsername')
 
-      console.info('Completed login and logout successfully')
+      logger.debug(`Liveness check on ${server}: Completed login and logout successfully`)
     } catch (e) {
+      logger.info(`Liveness check on ${server}: Generating sreenshot`)
       await page.screenshot({path: `${commonSetup.SCREENSHOTS_DIR_PATH}/login-failed.png`});
     }
   }
