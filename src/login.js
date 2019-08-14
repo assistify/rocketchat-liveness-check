@@ -7,43 +7,65 @@ const login = async function (server='http://localhost:3000', user='liveness', p
   commonSetup.run();
 
   const args = ['--no-sandbox', '--disable-setuid-sandbox']
-  const options = {ignoreHTTPSErrors: true, args}
+  const options = {ignoreHTTPSErrors: true, args, headless: !process.env.DEBUG}
   if (chromePath) {
     options.executablePath = chromePath
   }
   const browser = await puppeteer.launch(options)
   const page = await browser.newPage()
 
-  // make sure we're at a width with which we can see the sidepanel if logged in
-  await page.setViewport({ width: 1440, height: 748 })
+  try {
+    // make sure we're at a width with which we can see the sidepanel if logged in
+    await page.setViewport({width: 1440, height: 748})
 
-  try{
-    await page.goto(server, {timeout: 10000})
-  } catch(e) {
-    logger.error(`Liveness check on ${server}: Server not reached`)
-    throw new AutomationError('server-not-reached', {server, previous: e})
+    await gotoMainpage()
+    await doLogin()
+    await waitForAvatar()
+    await measureMessageTime()
+    await doLogout()
+
+    logger.debug(`Liveness check on ${server}: Completed login and logout successfully`)
+  } catch (e) {
+    logger.error(e)
+    await page.screenshot({ path: `${ commonSetup.SCREENSHOTS_DIR_PATH }/login-failed.png` })
+    throw e;
+  } finally {
+    await browser.close()
   }
 
-  await page.waitForSelector('input#emailOrUsername')
-  await page.type('input#emailOrUsername', user)
-  await page.type('input#pass', password)
+  return true;
 
-  await page.click('button.login')
-  try {
-    await page.waitForSelector('#toast-container', {timeout: 3000})
-    logger.error(`Liveness check on ${server}: Toast container appeared after login try`)
-    throw new AutomationError('user-not-found', {user, previous: e})
-  } catch (e) {
-    try{
+  async function gotoMainpage() {
+    try {
+      await page.goto(server, {timeout: 10000})
+    } catch (error) {
+      throw new AutomationError('server-not-reached', {server, error})
+    }
+  }
+
+  async function doLogin() {
+    await page.waitForSelector('input#emailOrUsername')
+    await page.type('input#emailOrUsername', user)
+    await page.type('input#pass', password)
+    await page.click('button.login')
+    try {
+      await page.waitForSelector('#toast-container', {timeout: 3000})
+    } catch (e) {
+      // all went well: the toast container with the error message didn't appear
+      return
+    }
+    throw new AutomationError('user-not-found', {server, user})
+  }
+
+  async function waitForAvatar() {
+    try {
       await page.waitForSelector('.avatar', { timeout: 30000 })
+    } catch (error) {
+      throw new AutomationError('login-failed', {server, error})
     }
-    catch (e) {
-      logger.error(`Liveness check on ${server}: Login failed`)
-      await page.screenshot({ path: `${ commonSetup.SCREENSHOTS_DIR_PATH }/login-failed.png` });
-      await browser.close()
-      throw new AutomationError('login-failed', {previous: e})
-    }
-    // we didn't get an error, everything as expected
+  }
+
+  async function measureMessageTime() {
     try {
       await page.goto(`${server}/direct/${user}`)
       await page.waitForSelector('.js-input-message')
@@ -58,26 +80,22 @@ const login = async function (server='http://localhost:3000', user='liveness', p
       await page.type('.js-input-message', 'waiting...')
       await page.waitFor(3000)
       await page.evaluate(() => document.querySelector('.js-input-message').value = '')
-
-      // bring up user menue
-      await page.click('.avatar')
-
-      // and log out
-      await page.waitForSelector('.rc-popover--sidebar-header .rc-popover__column ul:last-of-type li:last-of-type')
-      await page.click('.rc-popover--sidebar-header .rc-popover__column ul:last-of-type li:last-of-type')
-
-      // Check we're back to login screen
-      await page.waitForSelector('input#emailOrUsername')
-
-      logger.debug(`Liveness check on ${server}: Completed login and logout successfully`)
-    } catch (e) {
-      logger.info(`Liveness check on ${server}: Generating sreenshot`)
-      await page.screenshot({path: `${commonSetup.SCREENSHOTS_DIR_PATH}/login-failed.png`});
+    } catch (error) {
+      throw new AutomationError('time-measurement-failed', {server, error})
     }
   }
-  await browser.close()
 
-  return true;
+  async function doLogout() {
+    // bring up user menue
+    await page.click('.avatar')
+
+    // and log out
+    await page.waitForSelector('.rc-popover--sidebar-header .rc-popover__column ul:last-of-type li:last-of-type')
+    await page.click('.rc-popover--sidebar-header .rc-popover__column ul:last-of-type li:last-of-type')
+
+    // Check we're back to login screen
+    await page.waitForSelector('input#emailOrUsername')
+  }
 };
 
 module.exports = login
