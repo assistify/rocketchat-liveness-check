@@ -46,7 +46,9 @@ const login = async function (server='http://localhost:3000', user='liveness', p
   async function doLogin() {
     await page.waitForSelector('input#emailOrUsername')
     await page.type('input#emailOrUsername', user)
-    await page.type('input#pass', password)
+    await page.waitForSelector('input#pass')
+    await page.type('input#pass', password)  
+    await page.waitForSelector('button.login')
     await page.click('button.login')
     try {
       await page.waitForSelector('#toast-container', {timeout: 3000})
