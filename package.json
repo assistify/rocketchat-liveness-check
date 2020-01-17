@@ -1,6 +1,6 @@
 {
   "name": "rocketchat-liveness-check",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Verify liveness of a rocketchat instance - from the command line",
   "scripts": {
     "liveness": "node src/liveness"

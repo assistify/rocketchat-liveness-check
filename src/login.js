@@ -2,7 +2,7 @@ const puppeteer = require('puppeteer');
 const commonSetup = require('./utils/commonSetup');
 const AutomationError = require('./utils/AutomationError')
 
-const login = async function (server='http://localhost:3000', user='liveness', password='1iveness!', chromePath=process.env.CHROME, logger){
+const login = async function (server='http://localhost:3000', user='liveness', password='1iveness!', chromePath=process.env.CHROME, logger, measureTime = true){
   logger = logger || console
   commonSetup.run();
 
@@ -21,7 +21,9 @@ const login = async function (server='http://localhost:3000', user='liveness', p
     await gotoMainpage()
     await doLogin()
     await waitForAvatar()
-    await measureMessageTime()
+    if (measureTime) {
+      await measureMessageTime()
+    }
     await doLogout()
 
     logger.debug(`Liveness check on ${server}: Completed login and logout successfully`)
