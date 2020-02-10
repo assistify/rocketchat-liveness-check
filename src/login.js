@@ -36,14 +36,17 @@ async function setupBrowser(chromePath) {
   return puppeteer.launch(options)
 }
 
+async function openBrowser(chromePath) {
+  const browser = await setupBrowser(chromePath)
+  return {browser, page: await browser.newPage()}
+}
+
 async function runAsServer(chromePath=process.env.CHROME, measureTime=true) {
   const app = express()
   app.use(bodyParser.urlencoded({ extended: true }))
   app.use(bodyParser.json())
 
-  const browser = await setupBrowser(chromePath)
-  const page = await browser.newPage()
-
+  const {browser, page} = openBrowser(chromePath)
   app.post('/loginTest', async (req, res) => {
     try {
       res.json(await performTest(page, req.body.server, req.body.user, req.body.password, measureTime))
@@ -51,7 +54,10 @@ async function runAsServer(chromePath=process.env.CHROME, measureTime=true) {
       res.status(error.status || 500).json({error})
     }
   })
-  process.on('SIGTERM', () => app.close(() => process.exit(0)))
+  process.on('SIGTERM', () => app.close(() => {
+    browser.close()
+    process.exit(0)
+  }))
   app.listen(7000)
 }
 
@@ -143,3 +149,5 @@ async function performTest(page, server, user, password, measureTime) {
 
 module.exports = login
 module.exports.runAsServer = runAsServer
+module.exports.openBrowser = openBrowser
+module.exports.performTest = performTest
