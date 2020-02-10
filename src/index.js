@@ -1,6 +1,6 @@
-const login, { runAsServer } = require('./login')
+const login = require('./login')
 
 module.exports = {
   login,
-  runAsServer
+  runAsServer: login.runAsServer
 }

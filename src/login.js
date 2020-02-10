@@ -38,7 +38,7 @@ async function setupBrowser(chromePath) {
 
 async function runAsServer(chromePath=process.env.CHROME, measureTime=true) {
   const app = express()
-  app.use(bodyParser())
+  app.use(bodyParser.urlencoded({ extended: true }))
   app.use(bodyParser.json())
 
   const browser = await setupBrowser(chromePath)
@@ -51,6 +51,7 @@ async function runAsServer(chromePath=process.env.CHROME, measureTime=true) {
       res.status(error.status || 500).json({error})
     }
   })
+  process.on('SIGTERM', () => app.close(() => process.exit(0)))
   app.listen(7000)
 }
 
