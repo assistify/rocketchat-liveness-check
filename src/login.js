@@ -2,6 +2,7 @@ const puppeteer = require('puppeteer');
 const commonSetup = require('./utils/commonSetup');
 const AutomationError = require('./utils/AutomationError')
 const express = require('express')
+const bodyParser = require('body-parser')
 
 const login = async function (server='http://localhost:3000', user='liveness', password='1iveness!', chromePath=process.env.CHROME, logger, measureTime = true){
   logger = logger || console
@@ -37,12 +38,15 @@ async function setupBrowser(chromePath) {
 
 async function runAsServer(chromePath=process.env.CHROME, measureTime=true) {
   const app = express()
+  app.use(bodyParser())
+  app.use(bodyParser.json())
+
   const browser = await setupBrowser(chromePath)
   const page = await browser.newPage()
 
-  app.get('/login', async (req, res) => {
+  app.post('/loginTest', async (req, res) => {
     try {
-      res.json(await performTest(page, req.query.server, req.query.user, req.query.password, measureTime))
+      res.json(await performTest(page, req.body.server, req.body.user, req.body.password, measureTime))
     } catch (error) {
       res.status(error.status || 500).json({error})
     }

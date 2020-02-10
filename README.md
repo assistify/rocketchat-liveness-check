@@ -37,3 +37,7 @@ npm i
 CHROME=/usr/bin/google-chrome-stable npm run liveness`
 
 You can omit the environment variables if you use the default values
+
+### Server mode
+
+You can run the program also in server mode, which means, that the Chromium browser keeps running, while sending `POST http://localhost:7000/loginTest` with parameters `server`, `user` and `password` as payload.
