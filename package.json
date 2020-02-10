@@ -3,7 +3,8 @@
   "version": "0.0.3",
   "description": "Verify liveness of a rocketchat instance - from the command line",
   "scripts": {
-    "liveness": "node src/liveness"
+    "liveness": "node src/liveness",
+    "server": "node src/server"
   },
   "main": "src/index.js",
   "repository": {
@@ -17,6 +18,7 @@
   },
   "homepage": "https://github.com/assistify/rocketchat-liveness-check#readme",
   "dependencies": {
+    "express": "^4.17.1",
     "puppeteer": "^1.13.0"
   }
 }
